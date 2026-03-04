@@ -1,0 +1,2042 @@
+<!DOCTYPE html>
+<html lang="th">
+
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Chula Math-Mo — Vaccine Chain Reaction</title>
+  <meta name="description" content="เกมพัซเซิลตรรกะ ฝึกแปลง Hex เป็น Binary พร้อมปฏิกิริยาลูกโซ่วัคซีน">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link
+    href="https://fonts.googleapis.com/css2?family=Chakra+Petch:wght@400;500;600;700&family=Press+Start+2P&display=swap"
+    rel="stylesheet">
+  <style>
+    *,
+    *::before,
+    *::after {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box
+    }
+
+    :root {
+      --bg: #0a0a0a;
+      --surface: #151515;
+      --card: #222;
+      --card-hover: #333;
+      --pink: #ff1493;
+      --pink-light: #ff69b4;
+      --pink-glow: rgba(255, 20, 147, .4);
+      --green: #22c55e;
+      --green-glow: rgba(34, 197, 94, .35);
+      --text: #f5f5f5;
+      --muted: #888;
+      --yellow: #ffd700;
+    }
+
+    html {
+      font-size: 18px
+    }
+
+    body {
+      font-family: 'Chakra Petch', 'Press Start 2P', monospace;
+      background: var(--bg);
+      color: var(--text);
+      min-height: 100dvh;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      overflow-x: hidden;
+      image-rendering: pixelated;
+      font-weight: 600;
+      -webkit-font-smoothing: none;
+      -moz-osx-font-smoothing: unset;
+      text-rendering: optimizeSpeed;
+    }
+
+    /* ===== SCREENS ===== */
+    .screen {
+      display: none;
+      flex-direction: column;
+      align-items: center;
+      width: 100%
+    }
+
+    .screen.active {
+      display: flex
+    }
+
+    /* ===== TITLE SCREEN ===== */
+    .title-screen {
+      justify-content: center;
+      min-height: 100dvh;
+      padding: 20px;
+      gap: 0
+    }
+
+    .banner-img {
+      width: min(90vw, 440px);
+      border: 4px solid var(--pink);
+      image-rendering: pixelated
+    }
+
+    .title-text {
+      text-align: center;
+      margin-top: 18px
+    }
+
+    .title-text h1 {
+      font-size: 2rem;
+      color: var(--pink);
+      text-shadow: 0 0 12px var(--pink-glow)
+    }
+
+    .title-text p {
+      font-size: 1rem;
+      color: var(--muted);
+      margin-top: 8px
+    }
+
+    .start-btn {
+      margin-top: 22px;
+      border: 3px solid var(--pink);
+      background: transparent;
+      color: var(--pink);
+      font-family: inherit;
+      font-size: 1.2rem;
+      padding: 14px 36px;
+      cursor: pointer;
+      animation: blink 1.2s step-end infinite;
+      transition: background .15s;
+    }
+
+    .start-btn:hover {
+      background: var(--pink);
+      color: #000
+    }
+
+    @keyframes blink {
+      50% {
+        opacity: .3
+      }
+    }
+
+    /* ===== TUTORIAL SCREEN ===== */
+    .tutorial-screen {
+      justify-content: flex-start;
+      min-height: 100dvh;
+      padding: 20px 16px;
+      gap: 16px
+    }
+
+    .tut-header {
+      text-align: center
+    }
+
+    .tut-header h2 {
+      font-size: 1.6rem;
+      color: var(--pink);
+      margin-bottom: 8px
+    }
+
+    .tut-header p {
+      font-size: 1rem;
+      color: var(--muted);
+      line-height: 1.6
+    }
+
+    .tut-section {
+      background: var(--surface);
+      border: 2px solid #333;
+      padding: 16px;
+      width: 100%;
+      max-width: 500px;
+    }
+
+    .tut-section h3 {
+      font-size: 1.2rem;
+      color: var(--pink-light);
+      margin-bottom: 10px;
+      display: flex;
+      align-items: center;
+      gap: 8px
+    }
+
+    .tut-section p,
+    .tut-section li {
+      font-size: 1rem;
+      color: var(--muted);
+      line-height: 1.8
+    }
+
+    .tut-section ul {
+      margin-left: 14px
+    }
+
+    .tut-section li {
+      margin-bottom: 4px
+    }
+
+    .tut-example {
+      display: flex;
+      gap: 14px;
+      align-items: center;
+      justify-content: center;
+      background: #111;
+      border: 2px dashed #444;
+      padding: 14px;
+      margin: 10px 0;
+      flex-wrap: wrap;
+    }
+
+    .tut-example .hex-demo {
+      width: 70px;
+      height: 70px;
+      background: var(--card);
+      border: 3px solid #555;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 1.2rem;
+      color: var(--pink);
+      position: relative;
+    }
+
+    .tut-example .arrow-demo {
+      font-size: 1.2rem;
+      color: var(--yellow)
+    }
+
+    .tut-example .bin-demo {
+      font-size: 1rem;
+      color: var(--pink-light);
+      background: #1a1a1a;
+      border: 2px solid var(--pink);
+      padding: 6px 12px;
+    }
+
+    .tut-chars {
+      display: flex;
+      gap: 10px;
+      justify-content: center;
+      flex-wrap: wrap;
+      margin: 10px 0
+    }
+
+    .tut-char-card {
+      text-align: center
+    }
+
+    .tut-char-card img {
+      width: 64px;
+      height: 64px;
+      image-rendering: pixelated;
+      border: 2px solid #444
+    }
+
+    .tut-char-card p {
+      font-size: .9rem;
+      color: var(--muted);
+      margin-top: 4px
+    }
+
+    .tut-table {
+      width: 100%;
+      border-collapse: collapse;
+      margin: 8px 0
+    }
+
+    .tut-table th,
+    .tut-table td {
+      border: 1px solid #444;
+      padding: 8px 10px;
+      font-size: 1rem;
+      text-align: center;
+    }
+
+    .tut-table th {
+      background: var(--pink);
+      color: #000
+    }
+
+    .tut-table td {
+      color: var(--text)
+    }
+
+    .play-btn {
+      border: 3px solid var(--pink);
+      background: var(--pink);
+      color: #000;
+      font-family: inherit;
+      font-size: 1.1rem;
+      padding: 14px 36px;
+      cursor: pointer;
+      transition: transform .15s;
+      margin-top: 8px;
+    }
+
+    .play-btn:hover {
+      transform: scale(1.05)
+    }
+
+    /* ===== GAME SCREEN ===== */
+    .game-screen {
+      padding: 12px 16px;
+      gap: 6px
+    }
+
+    .game-header {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      margin-bottom: 4px
+    }
+
+    .game-header img {
+      width: 36px;
+      height: 36px;
+      image-rendering: pixelated
+    }
+
+    .game-header h2 {
+      font-size: 1.4rem;
+      color: var(--pink)
+    }
+
+    /* stats */
+    .stats-bar {
+      display: flex;
+      gap: 10px;
+      justify-content: center;
+      flex-wrap: wrap
+    }
+
+    .stat-pill {
+      display: flex;
+      align-items: center;
+      gap: 6px;
+      background: var(--surface);
+      border: 2px solid var(--pink);
+      padding: 8px 14px;
+      font-size: 1rem;
+    }
+
+    .stat-pill .val {
+      color: var(--pink-light);
+      min-width: 14px;
+      text-align: center
+    }
+
+    /* legend */
+    .legend {
+      display: flex;
+      gap: 12px;
+      justify-content: center;
+      font-size: .9rem;
+      color: var(--muted);
+      flex-wrap: wrap;
+      padding: 4px 0
+    }
+
+    .legend span {
+      display: flex;
+      align-items: center;
+      gap: 3px
+    }
+
+    .legend .dot {
+      width: 10px;
+      height: 10px;
+      display: inline-block
+    }
+
+    .legend .dot.un {
+      background: var(--card);
+      border: 2px solid #555
+    }
+
+    .legend .dot.vac {
+      background: var(--green)
+    }
+
+    /* ===== GRID ===== */
+    .grid-wrap {
+      position: relative;
+      padding: 10px 0
+    }
+
+    .grid {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 8px;
+      width: min(85vw, 340px);
+    }
+
+    /* ===== CELL ===== */
+    .cell {
+      position: relative;
+      aspect-ratio: 1;
+      background: var(--card);
+      border: 3px solid #444;
+      cursor: pointer;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      transition: transform .15s, box-shadow .15s, background .4s, border-color .4s;
+      user-select: none;
+      -webkit-tap-highlight-color: transparent;
+      overflow: visible;
+    }
+
+    .cell:hover {
+      transform: translateY(-3px);
+      box-shadow: 0 8px 20px rgba(0, 0, 0, .4);
+      border-color: var(--pink)
+    }
+
+    .cell:active {
+      transform: scale(.95)
+    }
+
+    /* house image bg */
+    .cell .house-bg {
+      position: absolute;
+      inset: 0;
+      background: url('assets/house.png') center/70% no-repeat;
+      opacity: .18;
+      pointer-events: none;
+    }
+
+    .cell.vaccinated .house-bg {
+      background-image: url('assets/house_safe.png');
+      opacity: .22;
+    }
+
+    /* hex label */
+    .cell .hex {
+      font-size: 1.8rem;
+      color: var(--pink);
+      z-index: 1;
+      transition: opacity .2s;
+      line-height: 1;
+    }
+
+    /* binary tooltip */
+    .cell .binary-tip {
+      position: absolute;
+      top: -32px;
+      left: 50%;
+      transform: translateX(-50%);
+      background: #111;
+      border: 2px solid var(--pink);
+      padding: 4px 10px;
+      font-size: .9rem;
+      color: var(--pink-light);
+      white-space: nowrap;
+      opacity: 0;
+      pointer-events: none;
+      transition: opacity .2s, top .2s;
+      z-index: 20;
+      letter-spacing: 3px;
+    }
+
+    .cell:hover .binary-tip {
+      opacity: 1;
+      top: -32px
+    }
+
+    /* always-show binary hints mode */
+    .grid.show-hints .cell .binary-tip {
+      opacity: 1 !important;
+      top: -32px !important;
+    }
+
+    /* hint toggle button */
+    .btn-hint-toggle {
+      background: transparent;
+      border: 2px solid var(--yellow);
+      color: var(--yellow);
+      font-family: inherit;
+      font-size: .85rem;
+      padding: 6px 14px;
+      cursor: pointer;
+      transition: all .15s;
+      display: flex;
+      align-items: center;
+      gap: 5px;
+    }
+
+    .btn-hint-toggle:hover {
+      transform: translateY(-1px);
+    }
+
+    .btn-hint-toggle.active {
+      background: var(--yellow);
+      color: #000;
+    }
+
+    /* bit labels */
+    .cell .bit-labels {
+      position: absolute;
+      top: -28px;
+      left: 50%;
+      transform: translateX(-50%);
+      display: flex;
+      gap: 0;
+      opacity: 0;
+      pointer-events: none;
+      transition: opacity .2s;
+      z-index: 19;
+    }
+
+    .cell:hover .bit-labels {
+      opacity: 0
+    }
+
+    /* hidden by default, binary-tip takes priority */
+
+    /* arrows */
+    .cell .arrow {
+      position: absolute;
+      width: 22px;
+      height: 22px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: .85rem;
+      color: var(--yellow);
+      opacity: 0;
+      transition: opacity .2s;
+      pointer-events: none;
+      filter: drop-shadow(0 0 5px rgba(255, 215, 0, .6));
+      z-index: 5;
+    }
+
+    .cell:hover .arrow {
+      opacity: 1
+    }
+
+    .cell .arrow.top {
+      top: -14px;
+      left: 50%;
+      transform: translateX(-50%)
+    }
+
+    .cell .arrow.right {
+      right: -14px;
+      top: 50%;
+      transform: translateY(-50%)
+    }
+
+    .cell .arrow.bottom {
+      bottom: -14px;
+      left: 50%;
+      transform: translateX(-50%)
+    }
+
+    .cell .arrow.left {
+      left: -14px;
+      top: 50%;
+      transform: translateY(-50%)
+    }
+
+    /* vaccinated state */
+    .cell.vaccinated {
+      background: linear-gradient(135deg, #0a3d1d, #0d5a2a);
+      border-color: var(--green);
+      box-shadow: 0 0 16px var(--green-glow);
+      cursor: default;
+    }
+
+    .cell.vaccinated .hex {
+      opacity: .2
+    }
+
+    .cell.vaccinated::after {
+      content: '💉';
+      position: absolute;
+      font-size: 1.4rem;
+      z-index: 2;
+      animation: popIn .35s cubic-bezier(.175, .885, .32, 1.275);
+    }
+
+    .cell.chain-vac {
+      animation: chainPulse .5s ease
+    }
+
+    @keyframes popIn {
+      0% {
+        transform: scale(0)
+      }
+
+      100% {
+        transform: scale(1)
+      }
+    }
+
+    @keyframes chainPulse {
+      0% {
+        box-shadow: 0 0 0 0 var(--green-glow)
+      }
+
+      50% {
+        box-shadow: 0 0 28px 8px var(--green-glow)
+      }
+
+      100% {
+        box-shadow: 0 0 16px var(--green-glow)
+      }
+    }
+
+    @keyframes winBounce {
+
+      0%,
+      100% {
+        transform: translateY(0)
+      }
+
+      50% {
+        transform: translateY(-8px)
+      }
+    }
+
+    /* ===== KNOWLEDGE PANEL ===== */
+    .know-panel {
+      background: var(--surface);
+      border: 2px solid #333;
+      padding: 12px 16px;
+      width: 100%;
+      max-width: 420px;
+      margin-top: 6px;
+    }
+
+    .know-panel h3 {
+      font-size: 1.1rem;
+      color: var(--pink-light);
+      margin-bottom: 8px;
+      display: flex;
+      align-items: center;
+      gap: 6px
+    }
+
+    .know-panel .know-content {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      flex-wrap: wrap;
+      justify-content: center;
+    }
+
+    .know-villager {
+      width: 48px;
+      height: 48px;
+      image-rendering: pixelated
+    }
+
+    .know-bubble {
+      background: #111;
+      border: 2px solid #444;
+      padding: 10px 14px;
+      font-size: .95rem;
+      color: var(--muted);
+      line-height: 1.7;
+      max-width: 400px;
+      position: relative;
+    }
+
+    .know-bubble::before {
+      content: '';
+      position: absolute;
+      left: -8px;
+      top: 12px;
+      border: 6px solid transparent;
+      border-right-color: #444;
+    }
+
+    .know-bubble code {
+      background: rgba(255, 20, 147, .15);
+      color: var(--pink-light);
+      padding: 1px 4px
+    }
+
+    /* ===== BUTTONS ===== */
+    .btn-row {
+      display: flex;
+      gap: 8px;
+      padding: 10px 0;
+      flex-wrap: wrap;
+      justify-content: center
+    }
+
+    .btn {
+      border: none;
+      outline: none;
+      cursor: pointer;
+      font-family: inherit;
+      font-size: 1rem;
+      padding: 10px 20px;
+      transition: transform .15s;
+      display: flex;
+      align-items: center;
+      gap: 6px;
+    }
+
+    .btn:hover {
+      transform: translateY(-2px)
+    }
+
+    .btn:active {
+      transform: scale(.96)
+    }
+
+    .btn-restart {
+      background: var(--surface);
+      color: var(--text);
+      border: 2px solid var(--pink)
+    }
+
+    .btn-new {
+      background: var(--pink);
+      color: #000;
+      border: 2px solid var(--pink)
+    }
+
+    .btn-tut {
+      background: transparent;
+      color: var(--muted);
+      border: 2px solid #555;
+      font-size: .9rem
+    }
+
+    /* ===== WIN OVERLAY ===== */
+    .win-overlay {
+      position: fixed;
+      inset: 0;
+      background: rgba(0, 0, 0, .88);
+      backdrop-filter: blur(8px);
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      z-index: 100;
+      opacity: 0;
+      pointer-events: none;
+      transition: opacity .35s;
+    }
+
+    .win-overlay.show {
+      opacity: 1;
+      pointer-events: auto
+    }
+
+    .win-card {
+      background: #111;
+      border: 4px solid var(--green);
+      padding: 28px 32px;
+      text-align: center;
+      box-shadow: 0 0 50px var(--green-glow);
+      transform: scale(.85);
+      transition: transform .35s cubic-bezier(.175, .885, .32, 1.275);
+    }
+
+    .win-overlay.show .win-card {
+      transform: scale(1)
+    }
+
+    .win-card .trophy {
+      font-size: 2.5rem;
+      animation: winBounce .8s infinite
+    }
+
+    .win-card h2 {
+      font-size: 1.4rem;
+      margin: 10px 0 6px
+    }
+
+    .win-card p {
+      color: var(--muted);
+      font-size: 1rem
+    }
+
+    .win-card .score {
+      font-size: 2rem;
+      color: var(--green);
+      margin: 8px 0
+    }
+
+    .win-card .win-msg {
+      font-size: .9rem;
+      color: var(--muted);
+      margin-bottom: 8px;
+      line-height: 1.6
+    }
+
+    .win-card .btn-row {
+      justify-content: center
+    }
+
+    .win-card .win-chars {
+      display: flex;
+      gap: 8px;
+      justify-content: center;
+      margin: 8px 0
+    }
+
+    .win-card .win-chars img {
+      width: 48px;
+      height: 48px;
+      image-rendering: pixelated
+    }
+
+    /* ===== SOLUTION REVEAL ===== */
+    .btn-solution {
+      background: var(--yellow);
+      color: #000;
+      border: 2px solid var(--yellow);
+      font-family: inherit;
+      font-size: 1rem;
+      padding: 10px 22px;
+      cursor: pointer;
+      margin-top: 10px;
+      transition: transform .15s;
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+    }
+
+    .btn-solution:hover {
+      transform: translateY(-2px);
+    }
+
+    .solution-wrap {
+      display: none;
+      margin-top: 14px;
+      padding: 14px;
+      border: 3px solid var(--yellow);
+      background: #1a1a00;
+      max-width: 420px;
+    }
+
+    .solution-wrap.show {
+      display: block;
+    }
+
+    .solution-title {
+      font-size: 1.1rem;
+      color: var(--yellow);
+      margin-bottom: 8px;
+    }
+
+    .solution-subtitle {
+      font-size: .85rem;
+      color: var(--muted);
+      margin-bottom: 12px;
+      line-height: 1.6;
+    }
+
+    .solution-grid {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 6px;
+      width: 240px;
+      margin: 0 auto 12px;
+    }
+
+    .sol-cell {
+      width: 100%;
+      aspect-ratio: 1;
+      border: 2px solid #444;
+      background: var(--surface);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      position: relative;
+      font-size: 1.4rem;
+      color: var(--pink);
+    }
+
+    .sol-cell.sol-click {
+      border-color: var(--yellow);
+      box-shadow: 0 0 14px rgba(255, 215, 0, .4);
+      background: rgba(255, 215, 0, .1);
+    }
+
+    .sol-cell.sol-chain {
+      border-color: var(--green);
+      background: rgba(34, 197, 94, .08);
+    }
+
+    .sol-cell .sol-badge {
+      position: absolute;
+      top: -8px;
+      right: -8px;
+      width: 24px;
+      height: 24px;
+      border-radius: 50%;
+      background: var(--yellow);
+      color: #000;
+      font-size: .75rem;
+      font-weight: 700;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      z-index: 5;
+    }
+
+    .sol-cell .sol-chain-badge {
+      position: absolute;
+      bottom: -6px;
+      right: -6px;
+      font-size: .7rem;
+      z-index: 5;
+    }
+
+    .solution-legend {
+      display: flex;
+      gap: 14px;
+      justify-content: center;
+      font-size: .85rem;
+      color: var(--muted);
+      flex-wrap: wrap;
+      margin-top: 8px;
+    }
+
+    .solution-legend .sol-dot {
+      display: inline-block;
+      width: 12px;
+      height: 12px;
+      margin-right: 4px;
+      vertical-align: middle;
+    }
+
+    .solution-legend .sol-dot.click {
+      background: var(--yellow);
+    }
+
+    .solution-legend .sol-dot.chain {
+      background: var(--green);
+    }
+
+    /* ===== FOOTER ===== */
+    .footer {
+      font-size: .8rem;
+      color: #555;
+      padding: 12px 0 20px;
+      text-align: center
+    }
+
+    /* ===== DEMO SCREEN ===== */
+    .demo-screen {
+      padding: 16px;
+      gap: 10px
+    }
+
+    .demo-header {
+      text-align: center
+    }
+
+    .demo-header h2 {
+      font-size: 1.6rem;
+      color: #39ff14;
+      text-shadow: 0 0 14px rgba(57, 255, 20, .5)
+    }
+
+    .demo-header p {
+      font-size: 1rem;
+      color: var(--muted);
+      margin-top: 6px
+    }
+
+    /* step progress */
+    .demo-steps {
+      display: flex;
+      gap: 4px;
+      justify-content: center;
+      flex-wrap: wrap;
+      padding: 6px 0
+    }
+
+    .demo-step-dot {
+      width: 32px;
+      height: 32px;
+      border: 2px solid #444;
+      background: var(--surface);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: .85rem;
+      color: var(--muted);
+      transition: all .3s;
+    }
+
+    .demo-step-dot.active {
+      border-color: #39ff14;
+      color: #39ff14;
+      box-shadow: 0 0 10px rgba(57, 255, 20, .4)
+    }
+
+    .demo-step-dot.done {
+      border-color: var(--green);
+      background: var(--green);
+      color: #000
+    }
+
+    /* demo narration */
+    .demo-narration {
+      background: #0a1a0a;
+      border: 3px solid #39ff14;
+      padding: 14px 18px;
+      width: 100%;
+      max-width: 460px;
+      box-shadow: 0 0 20px rgba(57, 255, 20, .2);
+      display: flex;
+      align-items: flex-start;
+      gap: 12px;
+    }
+
+    .demo-narration img {
+      width: 48px;
+      height: 48px;
+      image-rendering: pixelated;
+      flex-shrink: 0
+    }
+
+    .demo-narration .narr-text {
+      font-size: 1rem;
+      color: #b0ffb0;
+      line-height: 1.8;
+    }
+
+    .demo-narration .narr-text code {
+      background: rgba(57, 255, 20, .15);
+      color: #39ff14;
+      padding: 1px 5px;
+    }
+
+    .demo-narration .narr-text .highlight-word {
+      color: #39ff14;
+      font-weight: bold;
+    }
+
+    /* demo grid - highlight */
+    .demo-grid-wrap {
+      position: relative;
+      padding: 10px 0
+    }
+
+    .demo-grid {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 8px;
+      width: min(85vw, 340px);
+    }
+
+    /* guide highlight: neon green pulse */
+    .cell.guide-highlight {
+      border-color: #39ff14 !important;
+      box-shadow: 0 0 18px rgba(57, 255, 20, .5), 0 0 40px rgba(57, 255, 20, .2) !important;
+      animation: guidePulse 1s ease-in-out infinite !important;
+      cursor: pointer !important;
+      position: relative;
+    }
+
+    .cell.guide-highlight::before {
+      content: '👆 กดตรงนี้!';
+      position: absolute;
+      bottom: -36px;
+      left: 50%;
+      transform: translateX(-50%);
+      font-size: .9rem;
+      color: #39ff14;
+      white-space: nowrap;
+      text-shadow: 0 0 8px rgba(57, 255, 20, .6);
+      animation: guideFloat 1s ease-in-out infinite;
+      z-index: 30;
+    }
+
+    @keyframes guidePulse {
+
+      0%,
+      100% {
+        box-shadow: 0 0 18px rgba(57, 255, 20, .5), 0 0 40px rgba(57, 255, 20, .2)
+      }
+
+      50% {
+        box-shadow: 0 0 28px rgba(57, 255, 20, .8), 0 0 60px rgba(57, 255, 20, .35)
+      }
+    }
+
+    @keyframes guideFloat {
+
+      0%,
+      100% {
+        transform: translateX(-50%) translateY(0)
+      }
+
+      50% {
+        transform: translateX(-50%) translateY(-4px)
+      }
+    }
+
+    /* chain glow in demo */
+    .cell.demo-chain-glow {
+      border-color: #39ff14 !important;
+      box-shadow: 0 0 22px rgba(57, 255, 20, .6) !important;
+      animation: demoChainPop .5s ease !important;
+    }
+
+    @keyframes demoChainPop {
+      0% {
+        transform: scale(.9);
+        box-shadow: 0 0 0 rgba(57, 255, 20, 0)
+      }
+
+      50% {
+        transform: scale(1.05);
+        box-shadow: 0 0 30px rgba(57, 255, 20, .7)
+      }
+
+      100% {
+        transform: scale(1);
+        box-shadow: 0 0 22px rgba(57, 255, 20, .6)
+      }
+    }
+
+    /* demo buttons */
+    .demo-btn-row {
+      display: flex;
+      gap: 8px;
+      flex-wrap: wrap;
+      justify-content: center;
+      padding: 6px 0
+    }
+
+    .btn-demo-action {
+      background: #39ff14;
+      color: #000;
+      font-family: inherit;
+      font-size: 1.1rem;
+      padding: 12px 28px;
+      border: none;
+      cursor: pointer;
+      box-shadow: 0 0 12px rgba(57, 255, 20, .3);
+      transition: transform .15s;
+    }
+
+    .btn-demo-action:hover {
+      transform: scale(1.05)
+    }
+
+    .btn-demo-skip {
+      background: transparent;
+      color: var(--muted);
+      font-family: inherit;
+      font-size: .95rem;
+      padding: 10px 18px;
+      border: 2px solid #555;
+      cursor: pointer;
+      transition: transform .15s;
+    }
+
+    .btn-demo-skip:hover {
+      transform: translateY(-2px)
+    }
+
+    /* ===== RESPONSIVE ===== */
+    @media(min-width:480px) {
+      .game-header h2 {
+        font-size: 1.6rem
+      }
+
+      .grid {
+        width: 400px
+      }
+
+      .cell .hex {
+        font-size: 2rem
+      }
+
+      .banner-img {
+        width: 460px
+      }
+
+      .title-text h1 {
+        font-size: 2.2rem
+      }
+    }
+  </style>
+</head>
+
+<body>
+
+  <!-- ========== TITLE SCREEN ========== -->
+  <div class="screen title-screen active" id="screen-title">
+    <img class="banner-img" src="assets/banner.png" alt="Vaccine Chain Reaction Banner">
+    <div class="title-text">
+      <h1>🎮 Chula Math-Mo</h1>
+      <p>Vaccine Chain Reaction — ภารกิจวัคซีนพิทักษ์หมู่บ้าน</p>
+    </div>
+    <button class="start-btn" onclick="showScreen('screen-tutorial')">▶ PRESS START</button>
+  </div>
+
+  <!-- ========== TUTORIAL SCREEN ========== -->
+  <div class="screen tutorial-screen" id="screen-tutorial">
+    <div class="tut-header">
+      <h2>📖 วิธีเล่น</h2>
+      <p>เรียนรู้กลไกก่อนลงสนาม!</p>
+    </div>
+
+    <!-- Characters intro -->
+    <div class="tut-section">
+      <h3>👥 ตัวละคร</h3>
+      <div class="tut-chars">
+        <div class="tut-char-card">
+          <img src="assets/doctor.png" alt="Doctor">
+          <p>🩺 หมอ (คุณ!)</p>
+        </div>
+        <div class="tut-char-card">
+          <img src="assets/villager.png" alt="Villager">
+          <p>🏠 ชาวบ้าน</p>
+        </div>
+        <div class="tut-char-card">
+          <img src="assets/house.png" alt="House">
+          <p>❓ ยังไม่ฉีด</p>
+        </div>
+        <div class="tut-char-card">
+          <img src="assets/house_safe.png" alt="Safe House">
+          <p>✅ ฉีดแล้ว!</p>
+        </div>
+      </div>
+    </div>
+
+    <!-- Hex to Binary -->
+    <div class="tut-section">
+      <h3>🔢 กฎ: Hex → Binary (ฐาน 16 → ฐาน 2)</h3>
+      <p>แต่ละบ้านมีเลข <code>Hex</code> 1 ตัว (0–F) ต้องแปลงเป็น <code>Binary 4 บิต</code></p>
+      <div class="tut-example">
+        <div class="hex-demo">A</div>
+        <span class="arrow-demo">→</span>
+        <div class="bin-demo">1 0 1 0</div>
+      </div>
+      <p>แต่ละบิตแทน <strong>ทิศทาง</strong> ที่ชาวบ้านเชื่อใจ:</p>
+      <table class="tut-table">
+        <tr>
+          <th>บิต</th>
+          <th>ทิศ</th>
+          <th>1 = ?</th>
+          <th>0 = ?</th>
+        </tr>
+        <tr>
+          <td>ตัวที่ 1</td>
+          <td>⬆ บน</td>
+          <td>รอบนฉีดก่อน</td>
+          <td>ไม่สน</td>
+        </tr>
+        <tr>
+          <td>ตัวที่ 2</td>
+          <td>➡ ขวา</td>
+          <td>รอขวาฉีดก่อน</td>
+          <td>ไม่สน</td>
+        </tr>
+        <tr>
+          <td>ตัวที่ 3</td>
+          <td>⬇ ล่าง</td>
+          <td>รอล่างฉีดก่อน</td>
+          <td>ไม่สน</td>
+        </tr>
+        <tr>
+          <td>ตัวที่ 4</td>
+          <td>⬅ ซ้าย</td>
+          <td>รอซ้ายฉีดก่อน</td>
+          <td>ไม่สน</td>
+        </tr>
+      </table>
+    </div>
+
+    <!-- Examples -->
+    <div class="tut-section">
+      <h3>💡 ตัวอย่าง</h3>
+      <table class="tut-table">
+        <tr>
+          <th>Hex</th>
+          <th>Binary</th>
+          <th>ความหมาย</th>
+        </tr>
+        <tr>
+          <td>0</td>
+          <td>0000</td>
+          <td>ไม่รอใคร</td>
+        </tr>
+        <tr>
+          <td>5</td>
+          <td>0101</td>
+          <td>รอ ➡ขวา + ⬅ซ้าย</td>
+        </tr>
+        <tr>
+          <td>A</td>
+          <td>1010</td>
+          <td>รอ ⬆บน + ⬇ล่าง</td>
+        </tr>
+        <tr>
+          <td>F</td>
+          <td>1111</td>
+          <td>รอทุกทิศ!</td>
+        </tr>
+      </table>
+      <p style="margin-top:8px">⚠️ ถ้าทิศที่รอ <strong>อยู่นอกตาราง</strong> → ข้ามเงื่อนไขนั้นไปเลย!</p>
+    </div>
+
+    <!-- Chain Reaction -->
+    <div class="tut-section">
+      <h3>⚡ Chain Reaction (ลูกโซ่)</h3>
+      <ul>
+        <li><strong>คลิก</strong> บ้านไหนก็ได้ → ฉีดวัคซีน (ใช้ 1 เข็ม)</li>
+        <li>ระบบจะเช็กบ้านข้างเคียง → ถ้า <strong>เงื่อนไขครบ</strong> → ฉีดอัตโนมัติ ฟรี!</li>
+        <li>ลูกโซ่ต่อไปเรื่อยๆ จนไม่มีใครเข้าเงื่อนไข</li>
+        <li>🏆 เป้าหมาย: ฉีดครบทุกบ้าน <strong>ใช้เข็มน้อยที่สุด!</strong></li>
+      </ul>
+    </div>
+
+    <div class="btn-row" style="gap:10px">
+      <button class="play-btn" onclick="showScreen('screen-game');startGame()">🎮 เริ่มเล่นเลย!</button>
+      <button class="play-btn" style="background:#39ff14;border-color:#39ff14;color:#000"
+        onclick="showScreen('screen-demo');startDemo()">🧪 ดูตัวอย่าง</button>
+    </div>
+  </div>
+
+  <!-- ========== DEMO SCREEN ========== -->
+  <div class="screen demo-screen" id="screen-demo">
+    <div class="demo-header">
+      <h2>🧪 ตัวอย่างการเล่น</h2>
+      <p>ดูทีละขั้นตอน — กดปุ่มสีเขียวที่กะพริบ!</p>
+    </div>
+
+    <div class="demo-steps" id="demo-steps"></div>
+
+    <div class="demo-narration" id="demo-narration">
+      <img src="assets/doctor.png" alt="Doctor">
+      <div class="narr-text" id="demo-text">กำลังเตรียมตัวอย่าง...</div>
+    </div>
+
+    <div class="demo-grid-wrap">
+      <div class="demo-grid" id="demo-grid"></div>
+    </div>
+
+    <div class="demo-btn-row">
+      <button class="btn-demo-skip" onclick="showScreen('screen-game');startGame()">⏩ ข้ามไปเล่นเลย</button>
+      <button class="btn-demo-skip" onclick="showScreen('screen-tutorial')">📖 กลับวิธีเล่น</button>
+    </div>
+  </div>
+
+  <!-- ========== GAME SCREEN ========== -->
+  <div class="screen game-screen" id="screen-game">
+    <div class="game-header">
+      <img src="assets/doctor.png" alt="Doctor">
+      <h2>Chula Math-Mo</h2>
+    </div>
+
+    <div class="stats-bar">
+      <div class="stat-pill">💉 เข็มที่ใช้ <span class="val" id="needle-count">0</span></div>
+      <div class="stat-pill">🏠 เหลือ <span class="val" id="remaining">9</span></div>
+    </div>
+
+    <div class="legend">
+      <span><span class="dot un"></span> ยังไม่ฉีด</span>
+      <span><span class="dot vac"></span> ฉีดแล้ว</span>
+      <span>🔶 ลูกศร = รอเพื่อนบ้าน</span>
+      <button class="btn-hint-toggle" id="btn-hint-toggle" onclick="toggleHints()">🔍 คำใบ้ Binary</button>
+    </div>
+
+    <div class="grid-wrap">
+      <div class="grid" id="grid"></div>
+    </div>
+
+    <!-- Knowledge panel - changes with each click -->
+    <div class="know-panel" id="know-panel">
+      <h3>💡 รู้ไว้!</h3>
+      <div class="know-content">
+        <img class="know-villager" src="assets/villager.png" alt="Villager">
+        <div class="know-bubble" id="know-bubble">
+          เอาเมาส์ไปชี้ที่บ้านเพื่อดู <code>Binary</code> 4 หลัก<br>
+          แล้วคลิกเพื่อฉีดวัคซีนได้เลย! 💉
+        </div>
+      </div>
+    </div>
+
+    <div class="btn-row">
+      <button class="btn btn-restart" onclick="restart()">🔄 เริ่มด่านเดิม</button>
+      <button class="btn btn-new" onclick="newLevel()">🎲 ด่านใหม่</button>
+      <button class="btn btn-tut" onclick="showScreen('screen-tutorial')">📖 วิธีเล่น</button>
+    </div>
+
+    <div class="footer">Chula Math-Mo — เกมคณิตศาสตร์สร้างสรรค์ 🎓</div>
+  </div>
+
+  <!-- ========== WIN OVERLAY ========== -->
+  <div class="win-overlay" id="win-overlay">
+    <div class="win-card">
+      <div class="trophy">🏆</div>
+      <h2>หมู่บ้านปลอดภัยแล้ว!</h2>
+      <div class="win-chars">
+        <img src="assets/doctor.png" alt="Doctor">
+        <img src="assets/house_safe.png" alt="Safe">
+      </div>
+      <p>จำนวนเข็มที่ใช้</p>
+      <div class="score" id="win-score">0</div>
+      <div class="win-msg" id="win-msg"></div>
+      <div class="btn-row">
+        <button class="btn btn-restart" onclick="restart();closeWin()">🔄 เล่นด่านเดิม</button>
+        <button class="btn btn-new" onclick="newLevel();closeWin()">🎲 ด่านใหม่</button>
+      </div>
+      <button class="btn-solution" onclick="showSolution()">📖 ดูเฉลย</button>
+      <div class="solution-wrap" id="solution-wrap">
+        <div class="solution-title">📖 เฉลย — วิธีที่ใช้เข็มน้อยที่สุด</div>
+        <div class="solution-subtitle" id="solution-subtitle"></div>
+        <div class="solution-grid" id="solution-grid"></div>
+        <div class="solution-legend">
+          <span><span class="sol-dot click"></span> กดเอง (ใช้เข็ม)</span>
+          <span><span class="sol-dot chain"></span> Chain อัตโนมัติ</span>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    /* ====================================================================
+       Vaccine Chain Reaction — Game Logic (Enhanced Educational Version)
+       ==================================================================== */
+
+    const DIRS = ['top', 'right', 'bottom', 'left'];
+    const DIR_OFFSETS = { top: [-1, 0], right: [0, 1], bottom: [1, 0], left: [0, -1] };
+    const ROWS = 3, COLS = 3;
+
+    let board = [];
+    let vacc = [];
+    let needles = 0;
+    let savedBoard = [];
+
+    /* --- Knowledge facts shown during gameplay --- */
+    const FACTS = [
+      'เลขฐาน 16 (Hexadecimal) ใช้ตัวอักษร <code>0-9</code> และ <code>A-F</code> แทนค่า 0 ถึง 15!',
+      'เลข <code>A</code> ในฐาน 16 = <code>10</code> ในฐาน 10 = <code>1010</code> ในฐาน 2',
+      'เลขฐาน 2 (Binary) มีแค่ <code>0</code> กับ <code>1</code> — คอมพิวเตอร์เข้าใจแค่นี้!',
+      'Binary 4 บิตแทนค่าได้ <code>0-15</code> (2⁴ = 16 ค่า) พอดีกับ Hex 1 ตัว!',
+      'Chain Reaction ในเกมนี้คล้ายกับ <code>BFS</code> (Breadth-First Search) ในวิชา Algorithm!',
+      'คอมพิวเตอร์เก็บข้อมูลทุกอย่างเป็น Binary — รูปภาพ เสียง ข้อความ ก็เป็น 0 กับ 1!',
+      'Hex ย่อมาจาก Hexadecimal — "Hexa" แปลว่า 6, "Deci" แปลว่า 10 → 6+10 = 16!',
+      'โปรแกรมเมอร์ใช้เลขฐาน 16 เพราะมันย่อ Binary 4 บิตเป็น 1 ตัวอักษรได้สะดวก!',
+      'สีในเว็บไซต์ เช่น <code>#FF1493</code> ก็คือเลข Hex 6 ตัว (RGB ทิศละ 2 ตัว)!',
+      'ปฏิกิริยาลูกโซ่ (Chain Reaction) เป็นแนวคิดที่ใช้ทั้งในฟิสิกส์นิวเคลียร์ และ Graph Theory!'
+    ];
+    let factIdx = 0;
+
+    /* --- Helpers --- */
+    function hexToBin(n) { return [(n >> 3) & 1, (n >> 2) & 1, (n >> 1) & 1, n & 1]; }
+    function hexChar(n) { return n.toString(16).toUpperCase(); }
+    function binStr(n) { return hexToBin(n).join(''); }
+    function inBounds(r, c) { return r >= 0 && r < ROWS && c >= 0 && c < COLS; }
+
+    function trustSatisfied(r, c) {
+      const bits = hexToBin(board[r][c]);
+      for (let d = 0; d < 4; d++) {
+        if (bits[d] === 0) continue;
+        const [dr, dc] = DIR_OFFSETS[DIRS[d]];
+        const nr = r + dr, nc = c + dc;
+        if (!inBounds(nr, nc)) continue;
+        if (!vacc[nr][nc]) return false;
+      }
+      return true;
+    }
+
+    /* --- Screen management --- */
+    function showScreen(id) {
+      document.querySelectorAll('.screen').forEach(s => s.classList.remove('active'));
+      document.getElementById(id).classList.add('active');
+    }
+
+    /* --- Generate --- */
+    function generate() {
+      board = []; vacc = []; needles = 0;
+      for (let r = 0; r < ROWS; r++) {
+        board[r] = []; vacc[r] = [];
+        for (let c = 0; c < COLS; c++) {
+          board[r][c] = Math.floor(Math.random() * 16);
+          vacc[r][c] = false;
+        }
+      }
+      savedBoard = board.map(row => [...row]);
+    }
+
+    /* --- Render --- */
+    function render() {
+      const grid = document.getElementById('grid');
+      grid.innerHTML = '';
+      for (let r = 0; r < ROWS; r++) {
+        for (let c = 0; c < COLS; c++) {
+          const cell = document.createElement('div');
+          cell.className = 'cell' + (vacc[r][c] ? ' vaccinated' : '');
+
+          // house background
+          const houseBg = document.createElement('div');
+          houseBg.className = 'house-bg';
+          cell.appendChild(houseBg);
+
+          // hex label
+          const hex = document.createElement('span');
+          hex.className = 'hex';
+          hex.textContent = hexChar(board[r][c]);
+          cell.appendChild(hex);
+
+          // binary tooltip
+          const tip = document.createElement('span');
+          tip.className = 'binary-tip';
+          const bits = hexToBin(board[r][c]);
+          tip.innerHTML = bits.map((b, i) => {
+            const dirs = ['⬆', '➡', '⬇', '⬅'];
+            const color = b ? 'var(--yellow)' : 'var(--muted)';
+            return `<span style="color:${color}">${b}</span>`;
+          }).join(' ');
+          cell.appendChild(tip);
+
+          // arrows
+          for (let d = 0; d < 4; d++) {
+            if (bits[d] === 0) continue;
+            const [dr, dc] = DIR_OFFSETS[DIRS[d]];
+            if (!inBounds(r + dr, c + dc)) continue;
+            const arrow = document.createElement('span');
+            arrow.className = 'arrow ' + DIRS[d];
+            arrow.textContent = ['⬆', '➡', '⬇', '⬅'][d];
+            cell.appendChild(arrow);
+          }
+
+          if (!vacc[r][c]) {
+            cell.addEventListener('click', () => onCellClick(r, c));
+          }
+          grid.appendChild(cell);
+        }
+      }
+      document.getElementById('needle-count').textContent = needles;
+      document.getElementById('remaining').textContent = ROWS * COLS - vacc.flat().filter(Boolean).length;
+    }
+
+    /* --- Click --- */
+    function onCellClick(r, c) {
+      if (vacc[r][c]) return;
+      vacc[r][c] = true;
+      needles++;
+
+      // show educational fact
+      showFact(r, c);
+
+      render();
+      setTimeout(() => chainReaction(), 150);
+    }
+
+    /* --- Show educational fact --- */
+    function showFact(r, c) {
+      const bubble = document.getElementById('know-bubble');
+      const v = board[r][c];
+      const bits = hexToBin(v);
+      const dirNames = ['⬆บน', '➡ขวา', '⬇ล่าง', '⬅ซ้าย'];
+      const waiting = bits.map((b, i) => b ? dirNames[i] : null).filter(Boolean);
+
+      let msg = `<code>${hexChar(v)}</code> = Binary <code>${binStr(v)}</code><br>`;
+      if (waiting.length > 0) {
+        msg += `บ้านนี้รอ: ${waiting.join(', ')} ฉีดก่อน<br>`;
+      } else {
+        msg += `บ้านนี้ไม่รอใคร!<br>`;
+      }
+      msg += `<br>💡 ${FACTS[factIdx % FACTS.length]}`;
+      factIdx++;
+      bubble.innerHTML = msg;
+    }
+
+    /* --- Chain Reaction --- */
+    function chainReaction() {
+      let changed = true;
+      let delay = 0;
+      const toAnimate = [];
+
+      while (changed) {
+        changed = false;
+        for (let r = 0; r < ROWS; r++) {
+          for (let c = 0; c < COLS; c++) {
+            if (vacc[r][c]) continue;
+            if (trustSatisfied(r, c)) {
+              vacc[r][c] = true;
+              changed = true;
+              toAnimate.push({ r, c, delay });
+            }
+          }
+        }
+        delay += 350;
+      }
+
+      toAnimate.forEach(({ r, c, delay: d }) => {
+        setTimeout(() => {
+          render();
+          const idx = r * COLS + c;
+          const el = document.getElementById('grid').children[idx];
+          if (el) el.classList.add('chain-vac');
+          // show chain reaction fact
+          const bubble = document.getElementById('know-bubble');
+          const v = board[r][c];
+          bubble.innerHTML = `⚡ Chain! <code>${hexChar(v)}</code> (${binStr(v)}) เงื่อนไขครบ → ฉีดอัตโนมัติ! ไม่เสียเข็ม!`;
+          checkWin();
+        }, d);
+      });
+
+      if (toAnimate.length === 0) checkWin();
+    }
+
+    /* --- Win --- */
+    function checkWin() {
+      if (vacc.flat().every(Boolean)) {
+        document.getElementById('win-score').textContent = needles;
+        const msg = needles <= 2 ? '🌟 เก่งมาก! ใช้เข็มน้อยสุดๆ!'
+          : needles <= 4 ? '👍 ดีมาก! ลองหาทางใช้น้อยกว่านี้ได้ไหม?'
+            : '💪 ทำได้! ลอง Restart ดูจะหาทางใช้เข็มน้อยกว่านี้ได้มั้ย?';
+        document.getElementById('win-msg').textContent = msg;
+        // hide solution on new win
+        document.getElementById('solution-wrap').classList.remove('show');
+        document.getElementById('win-overlay').classList.add('show');
+      }
+    }
+
+    /* --- Solver (brute-force 2^9 subsets) --- */
+    function solveBoard(brd) {
+      const R = 3, C = 3, total = R * C;
+      let bestClicks = null;
+      let bestCount = total + 1;
+
+      for (let mask = 0; mask < (1 << total); mask++) {
+        const clickCount = popcount(mask);
+        if (clickCount >= bestCount) continue; // prune
+
+        // simulate
+        const v = Array.from({ length: R }, () => Array(C).fill(false));
+        // mark clicked cells
+        for (let i = 0; i < total; i++) {
+          if (mask & (1 << i)) v[Math.floor(i / C)][i % C] = true;
+        }
+        // run chain reactions
+        let changed = true;
+        while (changed) {
+          changed = false;
+          for (let r = 0; r < R; r++) {
+            for (let c = 0; c < C; c++) {
+              if (v[r][c]) continue;
+              if (trustSatisfiedWith(brd, v, r, c)) {
+                v[r][c] = true;
+                changed = true;
+              }
+            }
+          }
+        }
+        // check if all vaccinated
+        if (v.flat().every(Boolean)) {
+          bestCount = clickCount;
+          bestClicks = [];
+          for (let i = 0; i < total; i++) {
+            if (mask & (1 << i)) bestClicks.push(i);
+          }
+        }
+      }
+      return bestClicks;
+    }
+
+    function trustSatisfiedWith(brd, v, r, c) {
+      const bits = hexToBin(brd[r][c]);
+      for (let d = 0; d < 4; d++) {
+        if (bits[d] === 0) continue;
+        const [dr, dc] = DIR_OFFSETS[DIRS[d]];
+        const nr = r + dr, nc = c + dc;
+        if (!inBounds(nr, nc)) continue;
+        if (!v[nr][nc]) return false;
+      }
+      return true;
+    }
+
+    function popcount(n) { let c = 0; while (n) { c += n & 1; n >>= 1; } return c; }
+
+    /* --- Show Solution UI --- */
+    function showSolution() {
+      const wrap = document.getElementById('solution-wrap');
+      if (wrap.classList.contains('show')) {
+        wrap.classList.remove('show');
+        return;
+      }
+
+      const clicks = solveBoard(savedBoard);
+      if (!clicks) {
+        document.getElementById('solution-subtitle').textContent = '❌ ไม่พบเฉลยสำหรับแมพนี้';
+        wrap.classList.add('show');
+        return;
+      }
+
+      // simulate to find chain order
+      const R = 3, C = 3;
+      const v = Array.from({ length: R }, () => Array(C).fill(false));
+      const clickSet = new Set(clicks);
+      const order = []; // { idx, type: 'click'|'chain', step }
+      let step = 1;
+
+      // mark all clicked cells with order
+      clicks.forEach(i => {
+        v[Math.floor(i / C)][i % C] = true;
+        order.push({ idx: i, type: 'click', step: step++ });
+      });
+
+      // find chain additions in waves
+      let wave = 1;
+      let changed = true;
+      while (changed) {
+        changed = false;
+        const waveAdds = [];
+        for (let r = 0; r < R; r++) {
+          for (let c = 0; c < C; c++) {
+            if (v[r][c]) continue;
+            if (trustSatisfiedWith(savedBoard, v, r, c)) {
+              waveAdds.push(r * C + c);
+            }
+          }
+        }
+        waveAdds.forEach(i => {
+          v[Math.floor(i / C)][i % C] = true;
+          order.push({ idx: i, type: 'chain', wave });
+          changed = true;
+        });
+        wave++;
+      }
+
+      // subtitle
+      document.getElementById('solution-subtitle').innerHTML =
+        `ใช้แค่ <strong style="color:var(--yellow)">${clicks.length} เข็ม</strong> ก็ฉีดครบ 9 บ้าน!<br>กดบ้านตามลำดับตัวเลข — ที่เหลือ chain อัตโนมัติ ⚡`;
+
+      // render mini grid
+      const grid = document.getElementById('solution-grid');
+      grid.innerHTML = '';
+      for (let i = 0; i < R * C; i++) {
+        const cell = document.createElement('div');
+        cell.className = 'sol-cell';
+
+        // hex label
+        const r = Math.floor(i / C), c = i % C;
+        cell.textContent = hexChar(savedBoard[r][c]);
+
+        const info = order.find(o => o.idx === i);
+        if (info) {
+          if (info.type === 'click') {
+            cell.classList.add('sol-click');
+            const badge = document.createElement('span');
+            badge.className = 'sol-badge';
+            badge.textContent = info.step;
+            cell.appendChild(badge);
+          } else {
+            cell.classList.add('sol-chain');
+            const badge = document.createElement('span');
+            badge.className = 'sol-chain-badge';
+            badge.textContent = '⚡';
+            cell.appendChild(badge);
+          }
+        }
+        grid.appendChild(cell);
+      }
+
+      wrap.classList.add('show');
+    }
+    function closeWin() { document.getElementById('win-overlay').classList.remove('show'); }
+
+    /* --- Restart / New Level --- */
+    function restart() {
+      board = savedBoard.map(row => [...row]);
+      vacc = board.map(row => row.map(() => false));
+      needles = 0; factIdx = 0;
+      document.getElementById('know-bubble').innerHTML = 'เอาเมาส์ไปชี้ที่บ้านเพื่อดู <code>Binary</code> 4 หลัก<br>แล้วคลิกเพื่อฉีดวัคซีนได้เลย! 💉';
+      render();
+    }
+    function newLevel() {
+      generate(); factIdx = 0;
+      document.getElementById('know-bubble').innerHTML = 'เอาเมาส์ไปชี้ที่บ้านเพื่อดู <code>Binary</code> 4 หลัก<br>แล้วคลิกเพื่อฉีดวัคซีนได้เลย! 💉';
+      render();
+    }
+    /* --- Binary Hint Toggle --- */
+    let hintsVisible = false;
+    function toggleHints() {
+      hintsVisible = !hintsVisible;
+      const grid = document.getElementById('grid');
+      const btn = document.getElementById('btn-hint-toggle');
+      if (hintsVisible) {
+        grid.classList.add('show-hints');
+        btn.classList.add('active');
+        btn.innerHTML = '🔍 คำใบ้ Binary: เปิด';
+      } else {
+        grid.classList.remove('show-hints');
+        btn.classList.remove('active');
+        btn.innerHTML = '🔍 คำใบ้ Binary';
+      }
+    }
+
+    function startGame() {
+      demoActive = false;
+      hintsVisible = false;
+      generate(); render();
+      // reset hint button state
+      const btn = document.getElementById('btn-hint-toggle');
+      if (btn) { btn.classList.remove('active'); btn.innerHTML = '🔍 คำใบ้ Binary'; }
+    }
+
+    /* ====================================================================
+       DEMO MODE — Guided Step-by-Step Example
+       ==================================================================== */
+
+    let demoActive = false;
+    let demoStep = 0;
+
+    // Pre-configured board that creates a nice chain reaction:
+    // Board layout:
+    //  0  8  1
+    //  2  0  4
+    //  1  2  0
+    //
+    // 0 = 0000 (ไม่รอใคร)
+    // 8 = 1000 (รอบน)
+    // 1 = 0001 (รอซ้าย)
+    // 2 = 0010 (รอล่าง)
+    // 4 = 0100 (รอล่าง)
+    const DEMO_BOARD = [
+      [0, 8, 1],
+      [2, 0, 4],
+      [1, 2, 0]
+    ];
+
+    let demoVacc = [];
+
+    const DEMO_STEPS = [
+      {
+        type: 'intro',
+        text: `มาดูตัวอย่างกัน! 🎮<br><br>ตารางนี้มีบ้าน 9 หลัง แต่ละหลังมี<code>เลข Hex</code><br>เลขบอกว่าชาวบ้าน <span class="highlight-word">รอใครฉีดก่อน</span>`,
+      },
+      {
+        type: 'explain',
+        highlight: [[0, 0]],
+        text: `ดูบ้านมุมซ้ายบน → รหัส <code>0</code><br>แปลงเป็น Binary = <code>0000</code><br>หมายความว่า <span class="highlight-word">ไม่รอใครเลย!</span> 😄<br><br>ถ้าเราฉีดบ้านข้างๆ มัน → บ้านนี้อาจฉีดต่ออัตโนมัติ!`,
+      },
+      {
+        type: 'explain',
+        highlight: [[0, 1]],
+        text: `ดูบ้านตรงกลางบน → รหัส <code>8</code><br>แปลงเป็น Binary = <code>1000</code><br>บิตแรก=1 → <span class="highlight-word">รอ ⬆บน ฉีดก่อน</span><br><br>แต่! บ้านนี้อยู่ <span class="highlight-word">แถวบนสุด</span> ไม่มีบ้านข้างบน → ข้ามเงื่อนไข!<br>= เท่ากับ ไม่ต้องรอใคร! 🎉`,
+      },
+      {
+        type: 'explain',
+        highlight: [[1, 0]],
+        text: `ดูบ้านกลางซ้าย → รหัส <code>2</code><br>แปลงเป็น Binary = <code>0010</code><br>บิตที่ 3 =1 → <span class="highlight-word">รอ ⬇ล่าง ฉีดก่อน</span><br><br>ดังนั้นต้องฉีดบ้านข้างล่าง (ช่อง [2,0]) ก่อน ถึงจะยอมฉีด`,
+      },
+      {
+        type: 'click',
+        target: [2, 0],
+        text: `มาเริ่มกัน! 💉<br><br>บ้าน [แถว3,ช่อง1] รหัส <code>1</code> = <code>0001</code><br>รอ ⬅ซ้าย แต่อยู่ขอบซ้ายสุด → ข้ามเงื่อนไข!<br><br><span class="highlight-word">👆 กดที่ช่องสีเขียวเพื่อฉีดวัคซีน!</span>`,
+      },
+      {
+        type: 'auto-chain',
+        chainCells: [[1, 0]],
+        text: `⚡ <span class="highlight-word">Chain Reaction!</span><br><br>บ้าน [แถว2,ช่อง1] รหัส <code>2</code> = <code>0010</code><br>รอ ⬇ล่าง → บ้านล่าง [แถว3,ช่อง1] ฉีดแล้ว!<br>→ เงื่อนไขครบ → <span class="highlight-word">ฉีดอัตโนมัติ! ไม่เสียเข็ม!</span> ✨`,
+      },
+      {
+        type: 'auto-chain',
+        chainCells: [[0, 0]],
+        text: `⚡⚡ <span class="highlight-word">ลูกโซ่ต่อไป!</span><br><br>บ้าน [แถว1,ช่อง1] รหัส <code>0</code> = <code>0000</code><br>ไม่รอใครเลย → แค่มี chain ผ่านมา → ฉีดเลย!<br><br>เห็นมั้ย? ลูกโซ่ต่อกันไปเรื่อยๆ! 🔥`,
+      },
+      {
+        type: 'click',
+        target: [1, 1],
+        text: `มาฉีดต่อ! 💉<br><br>บ้านตรงกลาง รหัส <code>0</code> = <code>0000</code><br>ไม่รอใคร → <span class="highlight-word">กดฉีดได้เลย!</span><br><br>👆 กดที่ช่องสีเขียว!`,
+      },
+      {
+        type: 'auto-chain',
+        chainCells: [[0, 1], [1, 2], [2, 1]],
+        text: `⚡⚡⚡ <span class="highlight-word">MEGA CHAIN!</span> 🎆<br><br>• บ้าน [แถว1,ช่อง2] รหัส <code>8</code> → รอบน (ไม่มี) → ฉีดเลย!<br>• บ้าน [แถว2,ช่อง3] รหัส <code>4</code> → รอล่าง... → ยังไม่ครบ<br>• บ้าน [แถว3,ช่อง2] รหัส <code>2</code> → รอล่าง (ไม่มี) → ฉีดเลย!`,
+      },
+      {
+        type: 'click',
+        target: [0, 2],
+        text: `เกือบครบแล้ว!<br><br>บ้านมุมขวาบน รหัส <code>1</code> = <code>0001</code><br>รอ ⬅ซ้าย → บ้านซ้าย [แถว1,ช่อง2] ฉีดแล้ว!<br><br>แต่ยังมีบ้านที่ยังไม่ฉีด → <span class="highlight-word">กดเลย!</span>`,
+      },
+      {
+        type: 'auto-chain',
+        chainCells: [[1, 2], [2, 2]],
+        text: `⚡ <span class="highlight-word">FINAL CHAIN!</span> 🏆<br><br>• บ้าน [แถว2,ช่อง3] รหัส <code>4</code> → รอล่าง → ครบแล้ว! ฉีด!<br>• บ้าน [แถว3,ช่อง3] รหัส <code>0</code> → ไม่รอใคร → ฉีดเลย!<br><br><span class="highlight-word">✅ ครบหมดแล้ว! ใช้แค่ 3 เข็ม!</span>`,
+      },
+      {
+        type: 'complete',
+        text: `🏆 <span class="highlight-word">จบตัวอย่าง!</span><br><br>ใช้เข็มแค่ <code>3 เข็ม</code> ฉีดได้ครบ 9 บ้าน!<br>กุญแจคือ: ฉีดบ้านที่ทำให้เกิด <span class="highlight-word">ลูกโซ่ยาว</span> ที่สุด!<br><br>พร้อมเล่นจริงยัง? 🎮`,
+      }
+    ];
+
+    let demoRenderId = 0;
+
+    function startDemo() {
+      demoActive = true;
+      demoStep = 0;
+      goToDemoStep(0);
+    }
+
+    function goToDemoStep(targetStep) {
+      if (targetStep < 0 || targetStep >= DEMO_STEPS.length) return;
+      demoStep = targetStep;
+      demoRenderId++;
+      const currentRenderId = demoRenderId;
+
+      // Rebuild state up to the current step
+      demoVacc = DEMO_BOARD.map(row => row.map(() => false));
+      for (let i = 0; i < demoStep; i++) {
+        const s = DEMO_STEPS[i];
+        if (s.type === 'click') {
+          demoVacc[s.target[0]][s.target[1]] = true;
+        } else if (s.type === 'auto-chain' && s.chainCells) {
+          s.chainCells.forEach(([cr, cc]) => {
+            demoVacc[cr][cc] = true;
+          });
+        }
+      }
+
+      const step = DEMO_STEPS[demoStep];
+      renderDemoStepDots();
+      renderDemoGrid();
+
+      const textEl = document.getElementById('demo-text');
+      textEl.innerHTML = step.text;
+
+      const btnRow = document.createElement('div');
+      btnRow.style.display = 'flex';
+      btnRow.style.gap = '10px';
+      btnRow.style.marginTop = '14px';
+
+      if (demoStep > 0) {
+        const backBtn = document.createElement('button');
+        backBtn.className = 'btn-demo-action';
+        backBtn.style.background = '#444';
+        backBtn.style.borderColor = '#555';
+        backBtn.style.color = '#fff';
+        backBtn.innerHTML = '◀ ย้อนกลับ';
+        backBtn.onclick = () => goToDemoStep(demoStep - 1);
+        btnRow.appendChild(backBtn);
+      }
+
+      if (step.type === 'intro' || step.type === 'explain' || step.type === 'auto-chain' || step.type === 'complete') {
+        const nextBtn = document.createElement('button');
+        nextBtn.className = 'btn-demo-action';
+        if (step.type === 'complete') {
+          nextBtn.innerHTML = '🎮 เล่นจริง!';
+          nextBtn.onclick = () => { showScreen('screen-game'); startGame(); };
+        } else {
+          nextBtn.innerHTML = '▶ ถัดไป';
+          nextBtn.onclick = () => goToDemoStep(demoStep + 1);
+        }
+        btnRow.appendChild(nextBtn);
+      }
+
+      if (btnRow.children.length > 0) {
+        textEl.appendChild(document.createElement('br'));
+        textEl.appendChild(btnRow);
+      }
+
+      // Animate auto-chain if needed
+      if (step.type === 'auto-chain' && step.chainCells) {
+        step.chainCells.forEach(([cr, cc], i) => {
+          setTimeout(() => {
+            if (demoRenderId !== currentRenderId) return; // cancel if navigated away
+            demoVacc[cr][cc] = true;
+            renderDemoGrid();
+            const el = document.getElementById(`demo-cell-${cr}-${cc}`);
+            if (el) el.classList.add('demo-chain-glow');
+          }, (i + 1) * 400);
+        });
+      }
+    }
+
+    function renderDemoStepDots() {
+      const cont = document.getElementById('demo-steps');
+      cont.innerHTML = '';
+      DEMO_STEPS.forEach((s, i) => {
+        const dot = document.createElement('div');
+        dot.className = 'demo-step-dot' + (i === demoStep ? ' active' : '') + (i < demoStep ? ' done' : '');
+        dot.textContent = i < demoStep ? '✓' : (i + 1);
+        cont.appendChild(dot);
+      });
+    }
+
+    function renderDemoGrid() {
+      const grid = document.getElementById('demo-grid');
+      grid.innerHTML = '';
+      const step = DEMO_STEPS[demoStep];
+      for (let r = 0; r < 3; r++) {
+        for (let c = 0; c < 3; c++) {
+          const cell = document.createElement('div');
+          cell.className = 'cell' + (demoVacc[r][c] ? ' vaccinated' : '');
+          cell.id = `demo-cell-${r}-${c}`;
+
+          // house bg
+          const hb = document.createElement('div');
+          hb.className = 'house-bg';
+          cell.appendChild(hb);
+
+          // hex
+          const hex = document.createElement('span');
+          hex.className = 'hex';
+          hex.textContent = hexChar(DEMO_BOARD[r][c]);
+          cell.appendChild(hex);
+
+          // binary tooltip
+          const tip = document.createElement('span');
+          tip.className = 'binary-tip';
+          const bits = hexToBin(DEMO_BOARD[r][c]);
+          tip.innerHTML = bits.map(b => {
+            const color = b ? 'var(--yellow)' : 'var(--muted)';
+            return `<span style="color:${color}">${b}</span>`;
+          }).join(' ');
+          cell.appendChild(tip);
+
+          // arrows
+          for (let d = 0; d < 4; d++) {
+            if (bits[d] === 0) continue;
+            const [dr, dc] = DIR_OFFSETS[DIRS[d]];
+            if (!inBounds(r + dr, c + dc)) continue;
+            const arrow = document.createElement('span');
+            arrow.className = 'arrow ' + DIRS[d];
+            arrow.textContent = ['⬆', '➡', '⬇', '⬅'][d];
+            cell.appendChild(arrow);
+          }
+
+          // highlight if this is the target to click
+          if (step && step.type === 'click' && step.target[0] === r && step.target[1] === c && !demoVacc[r][c]) {
+            cell.classList.add('guide-highlight');
+            cell.addEventListener('click', () => demoClickCell(r, c));
+          }
+          // highlight explains
+          if (step && step.type === 'explain' && step.highlight) {
+            for (const [hr, hc] of step.highlight) {
+              if (hr === r && hc === c) {
+                cell.style.borderColor = '#39ff14';
+                cell.style.boxShadow = '0 0 20px rgba(57,255,20,.4)';
+              }
+            }
+          }
+
+          grid.appendChild(cell);
+        }
+      }
+    }
+
+    function demoClickCell(r, c) {
+      const step = DEMO_STEPS[demoStep];
+      if (!step || step.type !== 'click') return;
+      if (step.target[0] !== r || step.target[1] !== c) return;
+      goToDemoStep(demoStep + 1);
+    }
+  </script>
+</body>
+
+</html>
